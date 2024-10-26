@@ -1,0 +1,14 @@
+Package.json script config: 
+\n{
+"scripts": {
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\""
+  }
+}\n\n
+tsconfig.ts script config: 
+\n{
+"compilerOptions": {
+    "outDir": "./dist"
+  }
+}\n
