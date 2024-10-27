@@ -4,41 +4,8 @@ import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import bcryptConfig from '../configs/bycrypt';
 
-const authController = {
-    Register function
-    register: async (req: Request, res: Response) => {
-        try {
-            const { name, email, password: passwordBody } = req.body;
-
-            if (!name || !email || !passwordBody) {
-                return res.status(400).json({ message: "Missing data" });
-            }
-
-            const isUserExists = await User.findOne({ email }).exec();
-            if (isUserExists) {
-                return res.status(401).json({ message: "User Already Exists" });
-            }
-
-            const password = await bcrypt.hash(passwordBody, bcryptConfig.salt);
-            const access_token = crypto.randomBytes(30).toString("hex");
-
-            const newUser = await new User({
-                name,
-                email,
-                password,
-                access_token
-            }).save();
-
-            return res.status(201).json(newUser);
-
-        } catch (err) {
-            return res.status(500).json({ message: "Internal Server Error" });
-        }
-    },
-
-    // Login function
-    login: async (req: Request, res: Response) => {
-        try {
+const login = async (req: Request, res: Response) => {
+    try {
             const { email, password } = req.body;
 
             if (!email || !password) {
@@ -65,7 +32,39 @@ const authController = {
         } catch (err) {
             return res.status(500).json({ message: "Internal Server Error" });
         }
-    }
-};
+}
+
+
+const register = async (req: Request, res: Response) => {
+            try {
+            const { name, email, password: passwordBody } = req.body;
+
+            if (!name || !email || !passwordBody) {
+                return res.status(400).json({ message: "Missing data" });
+            }
+
+            const isUserExists = await User.findOne({ email }).exec();
+            if (isUserExists) {
+                return res.status(401).json({ message: "User Already Exists" });
+            }
+
+            const password = await bcrypt.hash(passwordBody, bcryptConfig.salt);
+            const access_token = crypto.randomBytes(30).toString("hex");
+
+            const newUser = await new User({
+                name,
+                email,
+                password,
+                access_token
+            }).save();
+
+            return res.status(201).json(newUser);
+
+        } catch (err) {
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+}
+
+
 
 export default authController;
