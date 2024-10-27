@@ -67,4 +67,7 @@ const register = async (req: Request, res: Response) => {
 
 
 
-export default authController;
+export default {
+    login,
+    register
+};
