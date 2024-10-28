@@ -12,3 +12,19 @@ tsconfig.ts script config:
     "outDir": "./dist"
   }
 }\n
+
+//use this when run 
+// npm run dev
+// dist file created 
+// terminate 
+// npm run dev 
+// again terminate 
+//npm run dev 
+
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\""
+  },

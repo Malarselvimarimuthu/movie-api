@@ -6,64 +6,40 @@ import bcryptConfig from '../configs/bycrypt';
 
 const login = async (req: Request, res: Response) => {
     try {
-            const { email, password } = req.body;
-
-            if (!email || !password) {
-                return res.status(400).json({ message: "Missing Data" });
-            }
-
-            const user = await User.findOne({ email }).exec();
-            if (!user) {
-                return res.status(401).json({ message: "Email or Password is Wrong!" });
-            }
-
-            const isPasswordValid = await bcrypt.compare(password, user.password);
-            if (!isPasswordValid) {
-                return res.status(401).json({ message: "Email or Password is Wrong!" });
-            }
-
-            return res.status(200).json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                access_token: user.access_token,
-            });
-
-        } catch (err) {
-            return res.status(500).json({ message: "Internal Server Error" });
-        }
-}
+      const { email, password } = req.body;
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(400).send('User not found');
+      }
+  
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).send('Invalid credentials');
+      }
+  
+      res.send('User logged in successfully');
+    } catch (error) {
+      res.status(500).send('Error logging in user');
+    }
+  };
 
 
 const register = async (req: Request, res: Response) => {
-            try {
-            const { name, email, password: passwordBody } = req.body;
-
-            if (!name || !email || !passwordBody) {
-                return res.status(400).json({ message: "Missing data" });
-            }
-
-            const isUserExists = await User.findOne({ email }).exec();
-            if (isUserExists) {
-                return res.status(401).json({ message: "User Already Exists" });
-            }
-
-            const password = await bcrypt.hash(passwordBody, bcryptConfig.salt);
-            const access_token = crypto.randomBytes(30).toString("hex");
-
-            const newUser = await new User({
-                name,
-                email,
-                password,
-                access_token
-            }).save();
-
-            return res.status(201).json(newUser);
-
-        } catch (err) {
-            return res.status(500).json({ message: "Internal Server Error" });
-        }
-}
+    try {
+      const { name, email, password } = req.body;
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = new User({
+        name,
+        email,
+        password: hashedPassword,
+      });
+  
+      await newUser.save();
+      return res.status(201).json({ message: 'User registered successfully' });
+    } catch (error) {
+        return res.status(500).json({ message: 'User registration failed', error: error.message });
+    }
+  };
 
 
 

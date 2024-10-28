@@ -1,18 +1,21 @@
-import express from 'express';
+import express , {Express} from 'express';
 import { connectToMongoDB } from './configs/mongoConfig';
 import { Logger } from './utils/logger';
 import userRoutes from './routes/userRoutes';
-
-const app = express();
-
-// Middleware
-app.use(express.json());
-// app.use(session({ secret: 'yourSecret', resave: false, saveUninitialized: true }));
-// app.use(passport.initialize());
-// app.use(passport.session());
+import cors from 'cors';
+const app: Express = express();
 
 // Load environment variables from .env file
 require('dotenv').config();
+
+// Middleware
+app.use(express.json());
+app.use(cors({
+   origin: 'http://localhost:3000',
+   methods: 'GET,POST,PUT,DELETE'
+}));
+
+
 
 // Connect to MongoDB
 connectToMongoDB().catch(error => Logger.error('MongoDB connection error:', error));
@@ -21,7 +24,7 @@ connectToMongoDB().catch(error => Logger.error('MongoDB connection error:', erro
 app.use('/api/users', userRoutes);
 
 // Start the server
-const PORT = process.env.PORT ;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   Logger.info(`Server is running on port ${PORT}`);
 });
