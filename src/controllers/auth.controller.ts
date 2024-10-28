@@ -17,9 +17,9 @@ const login = async (req: Request, res: Response) => {
         return res.status(400).send('Invalid credentials');
       }
   
-      res.send('User logged in successfully');
+      return res.status(200).json({message:'User logged in successfully'});
     } catch (error) {
-      res.status(500).send('Error logging in user');
+      return res.status(500).json({message:'Error logging in user'});
     }
   };
 
