@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const mongoConfig_1 = require("./configs/mongoConfig");
 const logger_1 = require("./utils/logger");
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
+const favouriteRoutes_1 = __importDefault(require("./routes/favouriteRoutes"));
 const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 // Load environment variables from .env file
@@ -21,6 +22,8 @@ app.use((0, cors_1.default)({
 (0, mongoConfig_1.connectToMongoDB)().catch(error => logger_1.Logger.error('MongoDB connection error:', error));
 // Use user routes
 app.use('/api/users', userRoutes_1.default);
+// Favourites Routes
+app.use('/api', favouriteRoutes_1.default);
 // Start the server
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
