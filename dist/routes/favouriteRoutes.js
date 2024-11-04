@@ -7,6 +7,6 @@ const express_1 = __importDefault(require("express"));
 const favourite_controller_1 = require("../controllers/favourite.controller");
 const router = express_1.default.Router();
 router.post('/favourites', favourite_controller_1.addFavourite);
-router.delete('/favourites/:movieId', favourite_controller_1.removeFavourite);
+router.delete('/favourites', favourite_controller_1.removeFavourite);
 router.get('/favourites', favourite_controller_1.getFavourites);
 exports.default = router;

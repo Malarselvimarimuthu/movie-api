@@ -16,9 +16,23 @@ exports.getFavourites = exports.removeFavourite = exports.addFavourite = void 0;
 const favourite_model_1 = __importDefault(require("../models/favourite.model"));
 // Add favorite
 const addFavourite = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
+    const { userId, movieId, title, poster_path, overview, release_date } = req.body;
     try {
-        const favorite = new favourite_model_1.default(req.body);
+        // Check if the favorite already exists for this user and movie
+        const existingFavorite = yield favourite_model_1.default.findOne({ userId, movieId });
+        if (existingFavorite) {
+            res.status(400).json({ error: 'Movie is already in favorites' });
+            return;
+        }
+        // If not, add it to the favorites
+        const favorite = new favourite_model_1.default({
+            userId,
+            movieId,
+            title,
+            poster_path,
+            overview,
+            release_date
+        });
         yield favorite.save();
         res.status(201).json(favorite);
     }
@@ -31,18 +45,23 @@ exports.addFavourite = addFavourite;
 // Remove favorite
 const removeFavourite = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userId, movieId } = req.query; // Get userId and movieId from query parameters
-        // Validate if userId and movieId are provided
-        if (!userId || !movieId) {
-            return res.status(400).json({ error: 'User ID and Movie ID are required' });
+        const userId = req.query.userId;
+        const movieId = parseInt(req.query.movieId, 10); // Convert movieId to number
+        // Validate if userId and movieId are provided and valid
+        if (!userId || isNaN(movieId)) {
+            res.status(400).json({ error: 'Valid User ID and Movie ID are required' });
+            return;
         }
+        // Find and delete the favorite based on userId and movieId
         const result = yield favourite_model_1.default.findOneAndDelete({ userId, movieId });
         if (!result) {
-            return res.status(404).json({ message: 'Favorite not found' });
+            res.status(404).json({ message: 'Favorite not found' });
+            return;
         }
-        res.status(200).json({ message: 'Favorite removed' });
+        res.status(200).json({ message: 'Favorite removed successfully' });
     }
     catch (error) {
+        console.error('Error in removeFavourite:', error);
         res.status(500).json({ error: 'Failed to remove favorite' });
     }
 });
@@ -52,11 +71,13 @@ const getFavourites = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     try {
         const { userId } = req.query; // Get userId from query parameters
         if (!userId) {
-            return res.status(400).json({ error: 'User ID is required' });
+            res.status(400).json({ error: 'User ID is required' });
+            return;
         }
         const favorites = yield favourite_model_1.default.find({ userId });
         if (favorites.length === 0) {
-            return res.status(404).json({ message: 'No favorites found for this user' });
+            res.status(404).json({ message: 'No favorites found for this user' });
+            return;
         }
         res.json(favorites);
     }

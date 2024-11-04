@@ -2,11 +2,28 @@ import { Request, Response } from 'express';
 import Favorite from '../models/favourite.model';
 
 // Add favorite
-export const addFavourite = async (req: Request, res: Response) => {
-  console.log(req.body);
+export const addFavourite = async (req: Request, res: Response): Promise<void> => {
+  const { userId, movieId, title, poster_path, overview, release_date } = req.body;
+
   try {
-    const favorite = new Favorite(req.body);
+    // Check if the favorite already exists for this user and movie
+    const existingFavorite = await Favorite.findOne({ userId, movieId });
+    if (existingFavorite) {
+      res.status(400).json({ error: 'Movie is already in favorites' });
+      return;
+    }
+
+    // If not, add it to the favorites
+    const favorite = new Favorite({
+      userId,
+      movieId,
+      title,
+      poster_path,
+      overview,
+      release_date
+    });
     await favorite.save();
+
     res.status(201).json(favorite);
   } catch (error) {
     console.error(error);
@@ -15,38 +32,45 @@ export const addFavourite = async (req: Request, res: Response) => {
 };
 
 // Remove favorite
-export const removeFavourite = async (req: Request, res: Response) => {
-    try {
-      const { userId, movieId } = req.query; // Get userId and movieId from query parameters
-  
-      // Validate if userId and movieId are provided
-      if (!userId || !movieId) {
-        return res.status(400).json({ error: 'User ID and Movie ID are required' });
-      }
-  
-      const result = await Favorite.findOneAndDelete({ userId, movieId });
-  
-      if (!result) {
-        return res.status(404).json({ message: 'Favorite not found' });
-      }
-  
-      res.status(200).json({ message: 'Favorite removed' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to remove favorite' });
+export const removeFavourite = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.query.userId as string;
+    const movieId = parseInt(req.query.movieId as string, 10); // Convert movieId to number
+
+    // Validate if userId and movieId are provided and valid
+    if (!userId || isNaN(movieId)) {
+      res.status(400).json({ error: 'Valid User ID and Movie ID are required' });
+      return;
     }
-  };
+
+    // Find and delete the favorite based on userId and movieId
+    const result = await Favorite.findOneAndDelete({ userId, movieId });
+
+    if (!result) {
+      res.status(404).json({ message: 'Favorite not found' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Favorite removed successfully' });
+  } catch (error) {
+    console.error('Error in removeFavourite:', error);
+    res.status(500).json({ error: 'Failed to remove favorite' });
+  }
+};
 
 // Get all favorites
-export const getFavourites = async (req: Request, res: Response) => {
+export const getFavourites = async (req: Request, res: Response): Promise<void> => {
     try {
         const { userId } = req.query; // Get userId from query parameters
         if (!userId) {
-          return res.status(400).json({ error: 'User ID is required' });
+          res.status(400).json({ error: 'User ID is required' });
+          return;
         }
     
         const favorites = await Favorite.find({ userId });
         if (favorites.length === 0) {
-          return res.status(404).json({ message: 'No favorites found for this user' });
+          res.status(404).json({ message: 'No favorites found for this user' });
+          return;
         }
     
         res.json(favorites);
