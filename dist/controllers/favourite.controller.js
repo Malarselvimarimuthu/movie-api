@@ -46,7 +46,7 @@ exports.addFavourite = addFavourite;
 const removeFavourite = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = req.query.userId;
-        const movieId = parseInt(req.query.movieId, 10); // Convert movieId to number
+        const movieId = req.query.movieId ? parseInt(req.query.movieId, 10) : NaN; // Convert movieId to number
         // Validate if userId and movieId are provided and valid
         if (!userId || isNaN(movieId)) {
             res.status(400).json({ error: 'Valid User ID and Movie ID are required' });
@@ -67,7 +67,7 @@ const removeFavourite = (req, res) => __awaiter(void 0, void 0, void 0, function
 });
 exports.removeFavourite = removeFavourite;
 // Get all favorites
-const getFavourites = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getFavourites = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId } = req.query; // Get userId from query parameters
         if (!userId) {

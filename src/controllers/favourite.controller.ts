@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response ,NextFunction} from 'express';
 import Favorite from '../models/favourite.model';
 
 // Add favorite
@@ -35,7 +35,7 @@ export const addFavourite = async (req: Request, res: Response): Promise<void> =
 export const removeFavourite = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.query.userId as string;
-    const movieId = parseInt(req.query.movieId as string, 10); // Convert movieId to number
+    const movieId = req.query.movieId ? parseInt(req.query.movieId as string, 10) : NaN; // Convert movieId to number
 
     // Validate if userId and movieId are provided and valid
     if (!userId || isNaN(movieId)) {
@@ -59,7 +59,7 @@ export const removeFavourite = async (req: Request, res: Response): Promise<void
 };
 
 // Get all favorites
-export const getFavourites = async (req: Request, res: Response): Promise<void> => {
+export const getFavourites = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
         const { userId } = req.query; // Get userId from query parameters
         if (!userId) {

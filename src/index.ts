@@ -3,8 +3,9 @@ import { connectToMongoDB } from './configs/mongoConfig';
 import { Logger } from './utils/logger';
 import userRoutes from './routes/userRoutes';
 import favouriteRoutes from './routes/favouriteRoutes';
+import feedbackRoutes from './routes/feedbackRoutes';
 import cors from 'cors';
-
+import { Request, Response } from 'express';
 const app: Express = express();
 
 // Load environment variables from .env file
@@ -27,6 +28,7 @@ app.use('/api/users', userRoutes);
 
 // Favourites Routes
 app.use('/api', favouriteRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 // Start the server
 const PORT = process.env.PORT;

@@ -49,7 +49,30 @@ const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res.status(500).json({ message: 'User registration failed' });
     }
 });
+// New route to fetch username by userId
+const mongoose_1 = __importDefault(require("mongoose"));
+const getUsernameById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = req.params.userId; // Get the userId from the URL parameter
+        // Check if userId is valid
+        if (!mongoose_1.default.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid userId format' });
+        }
+        // Find the user in the database by userId
+        const user = yield user_model_1.default.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        // Return the username (name) associated with the userId
+        return res.status(200).json({ username: user.name });
+    }
+    catch (error) {
+        console.error(error); // Log error for debugging purposes
+        return res.status(500).json({ message: 'Error fetching username' });
+    }
+});
 exports.default = {
     login,
-    register
+    register,
+    getUsernameById
 };

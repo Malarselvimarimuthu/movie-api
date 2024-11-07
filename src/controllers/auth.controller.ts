@@ -43,9 +43,37 @@ const register = async (req: Request, res: Response) => {
     }
   };
 
+  // New route to fetch username by userId
+  import mongoose from 'mongoose';
+
+  const getUsernameById = async (req: Request, res: Response) => {
+    try {
+        const userId = req.params.userId; // Get the userId from the URL parameter
+  
+        // Check if userId is valid
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: 'Invalid userId format' });
+        }
+  
+        // Find the user in the database by userId
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+  
+        // Return the username (name) associated with the userId
+        return res.status(200).json({ username: user.name });
+    } catch (error) {
+        console.error(error);  // Log error for debugging purposes
+        return res.status(500).json({ message: 'Error fetching username' });
+    }
+  };
+  
+
 
 
 export default {
     login,
-    register
+    register,
+    getUsernameById
 };
